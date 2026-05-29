@@ -9,6 +9,7 @@ let currentPosition = null;
 let watchId = null;
 let cameraStream = null;
 let voiceEnabled = true;
+let hasFinishedRoute = false;
 
 const el = id => document.getElementById(id);
 
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   el('routeSelect').addEventListener('change', handleRouteChange);
   el('startBtn').addEventListener('click', startGuidance);
+  el('gpsBtn').addEventListener('click', requestGpsOnce);
   el('nextBtn').addEventListener('click', nextStep);
   el('backBtn').addEventListener('click', previousStep);
   el('stopCameraBtn').addEventListener('click', stopCamera);
@@ -96,10 +98,12 @@ function loadRoute(routeId) {
     .sort((a, b) => Number(a.StepOrder) - Number(b.StepOrder));
 
   currentStep = 0;
+  hasFinishedRoute = false;
 
   if (!selectedRoute || !selectedSteps.length) {
     el('guidanceText').textContent = 'Route steps not found';
     el('guidanceSubtext').textContent = 'Check the Routes and Route_Steps tabs.';
+    el('routeStatus').textContent = 'Route Missing';
     return;
   }
 
@@ -115,6 +119,8 @@ async function startGuidance() {
   el('livePanel').classList.remove('hidden');
 
   currentStep = 0;
+  hasFinishedRoute = false;
+
   renderStep(true);
   startGpsWatch();
   await startCamera();
@@ -124,6 +130,11 @@ async function startGuidance() {
 
 async function startCamera() {
   try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Live camera is not supported in this browser. Use Chrome on Android or Safari on iPhone.');
+      return;
+    }
+
     cameraStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: 'environment' },
@@ -135,8 +146,9 @@ async function startCamera() {
 
     el('cameraVideo').srcObject = cameraStream;
     await el('cameraVideo').play();
+
   } catch (err) {
-    alert('Camera could not open. Make sure you are using Chrome on Android or Safari on iPhone and allow camera permission.');
+    alert('Camera could not open. Allow camera permission and use Chrome on Android or Safari on iPhone.');
   }
 }
 
@@ -216,7 +228,9 @@ function startGpsWatch() {
 
   el('gpsStatus').textContent = 'Requesting';
 
-  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+  }
 
   watchId = navigator.geolocation.watchPosition(
     pos => {
@@ -240,8 +254,38 @@ function startGpsWatch() {
   );
 }
 
+function requestGpsOnce() {
+  if (!navigator.geolocation) {
+    el('gpsStatus').textContent = 'Not Supported';
+    return;
+  }
+
+  el('gpsStatus').textContent = 'Updating';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      currentPosition = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracy: pos.coords.accuracy
+      };
+
+      el('gpsStatus').textContent = `Updated ±${Math.round(pos.coords.accuracy)}m`;
+      updateLiveGuidance();
+    },
+    () => {
+      el('gpsStatus').textContent = 'GPS Failed';
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 12000
+    }
+  );
+}
+
 function updateLiveGuidance() {
-  if (!selectedSteps.length) return;
+  if (!selectedSteps.length || hasFinishedRoute) return;
 
   const step = selectedSteps[currentStep];
   const nextStepObj = selectedSteps[currentStep + 1];
@@ -297,6 +341,7 @@ function advanceOrFinish() {
 }
 
 function finishRoute() {
+  hasFinishedRoute = true;
   el('routeStatus').textContent = 'Arrived';
   el('guidanceText').textContent = 'You have arrived';
   el('guidanceSubtext').textContent = 'Park and report to the appropriate security entrance.';
@@ -317,6 +362,7 @@ function nextStep() {
 function previousStep() {
   if (currentStep > 0) {
     currentStep--;
+    hasFinishedRoute = false;
     renderStep(true);
   }
 }
@@ -363,6 +409,7 @@ function getDistanceFeet(lat1, lng1, lat2, lng2) {
     Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
   return R * c * 3.28084;
 }
 
