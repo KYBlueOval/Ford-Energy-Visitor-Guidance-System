@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Ford Energy Visitor Guidance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+  <main class="app-shell">
+
+    <header class="brand-header">
+      <img id="logo" class="ford-logo" alt="Ford Energy">
+      <p class="system-title">Visitor Guidance System</p>
+    </header>
+
+    <section class="hero-card">
+      <h1 id="appTitle">Site Navigation</h1>
+      <p>Select your destination and follow the guided route from the Main Gate.</p>
+
+      <label class="label">Select Destination</label>
+      <select id="routeSelect" class="route-select">
+        <option>Loading routes...</option>
+      </select>
+
+      <button id="startBtn" class="primary-btn">Start Live Guidance</button>
+    </section>
+
+    <section id="livePanel" class="live-panel hidden">
+      <div class="camera-wrap">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+
+        <div class="ar-overlay">
+          <div id="bigArrow" class="big-arrow">↑</div>
+
+          <div class="ar-card">
+            <h2 id="guidanceText">Loading guidance...</h2>
+            <p id="guidanceSubtext"></p>
+            <p id="distanceRemaining">Distance: --</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-grid">
+        <div>
+          <p class="label">GPS</p>
+          <strong id="gpsStatus">Waiting</strong>
+        </div>
+        <div>
+          <p class="label">Step</p>
+          <strong id="stepCounter">--</strong>
+        </div>
+        <div>
+          <p class="label">Heading</p>
+          <strong id="headingValue">--</strong>
+        </div>
+        <div>
+          <p class="label">Route</p>
+          <strong id="routeStatus">Not Started</strong>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="backBtn" class="secondary-btn">Back</button>
+        <button id="nextBtn" class="primary-btn">Next Step</button>
+      </div>
+
+      <button id="stopCameraBtn" class="danger-btn">Stop Camera</button>
+    </section>
+
+    <section class="step-card">
+      <img id="stepImage" class="step-image" alt="Step Image">
+      <h2 id="stepTitle">Route Step</h2>
+      <p id="stepInstruction">Select a route to begin.</p>
+    </section>
+
+    <section class="help-card">
+      <h2>Need Help?</h2>
+      <p id="emergencyText">For emergencies, call 911. For site assistance, contact Security.</p>
+      <a id="securityPhone" class="call-btn" href="#">Call Security</a>
+    </section>
+
+    <footer class="footer-card">
+      <p>Developed By</p>
+      <img id="bwrdoLogo" class="bwrdo-logo" alt="BWRDO">
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
