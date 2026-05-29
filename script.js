@@ -15,6 +15,8 @@ let voiceEnabled = true;
 let hasFinishedRoute = false;
 let currentHeading = null;
 let sessionId = createSessionId();
+let lastZone = '';
+let lastSpokenStep = -1;
 
 const el = id => document.getElementById(id);
 
@@ -112,6 +114,8 @@ function loadRoute(routeId) {
 
   currentStep = 0;
   hasFinishedRoute = false;
+  lastZone = '';
+  lastSpokenStep = -1;
 
   if (!selectedRoute || !selectedSteps.length) {
     el('guidanceText').textContent = 'Route steps not found';
@@ -135,6 +139,8 @@ async function startGuidance() {
 
   currentStep = 0;
   hasFinishedRoute = false;
+  lastZone = '';
+  lastSpokenStep = -1;
 
   logEvent('ROUTE_START', 'Route guidance started');
 
@@ -149,7 +155,6 @@ async function startGuidance() {
 
 function exitArMode() {
   stopCamera();
-
   document.body.classList.remove('ar-active');
   el('livePanel').classList.remove('fullscreen');
 
@@ -179,7 +184,6 @@ async function startCamera() {
     await el('cameraVideo').play();
 
     logEvent('CAMERA_OPEN', 'Camera opened');
-
   } catch (err) {
     logEvent('CAMERA_ERROR', err.message || 'Camera failed');
     alert('Camera could not open. Allow camera permission and use Chrome on Android or Safari on iPhone.');
@@ -214,9 +218,7 @@ function renderStep(shouldSpeak = true) {
 
 function updateGuidanceText(shouldSpeak = true) {
   const step = selectedSteps[currentStep];
-
-  const direction = step.DirectionArrow || step.Instruction || '';
-  const directionType = getDirectionType(direction);
+  const directionType = getDirectionType(step.DirectionArrow || step.Instruction || '');
 
   el('turnBadge').textContent = getTurnBadge(directionType);
 
@@ -230,9 +232,9 @@ function updateGuidanceText(shouldSpeak = true) {
 
   updateBearingArrow();
 
-  if (shouldSpeak) {
-    const spokenText = step.VoicePrompt || step.Instruction || step.StepName;
-    speakDirection(spokenText);
+  if (shouldSpeak && lastSpokenStep !== currentStep) {
+    lastSpokenStep = currentStep;
+    speakDirection(step.VoicePrompt || step.Instruction || step.StepName);
   }
 }
 
@@ -240,7 +242,6 @@ function updateBearingArrow() {
   if (!selectedSteps.length || !currentPosition) return;
 
   const step = selectedSteps[currentStep];
-
   if (!step.Latitude || !step.Longitude) return;
 
   const bearing = getBearingDegrees(
@@ -261,6 +262,47 @@ function updateBearingArrow() {
 
   el('bigArrow').style.transform =
     `rotate(${-rotation}deg)`;
+
+  updateWrongWayWarning(rotation);
+}
+
+function updateWrongWayWarning(rotation) {
+  const offCourse = rotation > 120 && rotation < 240;
+
+  if (offCourse) {
+    el('turnBadge').textContent = 'TURN AROUND / CHECK DIRECTION';
+    el('turnBadge').style.background = 'linear-gradient(135deg, #ff6b6b, #ff1f1f)';
+    el('turnBadge').style.color = 'white';
+  } else {
+    el('turnBadge').style.background = '';
+    el('turnBadge').style.color = '';
+  }
+}
+
+function updateApproachZone(distanceFt) {
+  let zone = 'far';
+
+  if (distanceFt <= 50) zone = 'arrival';
+  else if (distanceFt <= 150) zone = 'final';
+  else if (distanceFt <= 300) zone = 'approach';
+
+  if (zone === lastZone) return;
+
+  lastZone = zone;
+
+  if (zone === 'approach') {
+    speakDirection('Approaching next waypoint.');
+    vibrate([80]);
+  }
+
+  if (zone === 'final') {
+    speakDirection('Prepare for the next instruction.');
+    vibrate([80, 60, 80]);
+  }
+
+  if (zone === 'arrival') {
+    vibrate([120, 70, 120]);
+  }
 }
 
 function getDirectionType(direction) {
@@ -275,10 +317,10 @@ function getDirectionType(direction) {
 }
 
 function getTurnBadge(type) {
-  if (type === 'left') return 'TURN LEFT';
-  if (type === 'right') return 'TURN RIGHT';
+  if (type === 'left') return 'BEARING TO LEFT WAYPOINT';
+  if (type === 'right') return 'BEARING TO RIGHT WAYPOINT';
   if (type === 'arrive') return 'ARRIVAL POINT';
-  return 'NEXT WAYPOINT';
+  return 'BEARING TO NEXT WAYPOINT';
 }
 
 function renderStepDots() {
@@ -348,7 +390,7 @@ function startGpsWatch() {
     },
     {
       enableHighAccuracy: true,
-      maximumAge: 3000,
+      maximumAge: 1500,
       timeout: 12000
     }
   );
@@ -409,6 +451,8 @@ function updateLiveGuidance() {
   el('distanceRemaining').textContent = `${Math.round(currentDistance)} ft`;
   el('routeStatus').textContent = 'En Route';
 
+  updateApproachZone(currentDistance);
+
   const radius = Number(step.ArrivalRadiusFt || 100);
 
   if (currentDistance <= radius) {
@@ -427,6 +471,7 @@ function updateLiveGuidance() {
 
     if (nextDistance + 75 < currentDistance) {
       currentStep++;
+      lastZone = '';
       logEvent('STEP_ADVANCE', 'Auto advanced to next waypoint');
       renderStep(true);
     }
@@ -436,6 +481,7 @@ function updateLiveGuidance() {
 function advanceOrFinish() {
   if (currentStep < selectedSteps.length - 1) {
     currentStep++;
+    lastZone = '';
     renderStep(true);
   } else {
     finishRoute();
@@ -452,6 +498,7 @@ function finishRoute() {
   el('turnBadge').textContent = 'ARRIVED';
   el('directionArrow').classList.add('arrive');
   renderStepDots();
+  vibrate([180, 80, 180, 80, 180]);
   speakDirection('You have arrived. Park and report to the appropriate security entrance.');
   logEvent('ROUTE_COMPLETE', 'Route completed');
 }
@@ -460,6 +507,7 @@ function nextStep() {
   if (currentStep < selectedSteps.length - 1) {
     currentStep++;
     hasFinishedRoute = false;
+    lastZone = '';
     logEvent('STEP_ADVANCE', 'Manual next step');
     renderStep(true);
   } else {
@@ -471,6 +519,7 @@ function previousStep() {
   if (currentStep > 0) {
     currentStep--;
     hasFinishedRoute = false;
+    lastZone = '';
     logEvent('STEP_ADVANCE', 'Manual previous step');
     renderStep(true);
   }
@@ -504,14 +553,14 @@ function launchSecurityCall(e) {
 }
 
 function getBearingDegrees(lat1, lng1, lat2, lng2) {
-  const φ1 = toRad(lat1);
-  const φ2 = toRad(lat2);
-  const Δλ = toRad(lng2 - lng1);
+  const p1 = toRad(lat1);
+  const p2 = toRad(lat2);
+  const delta = toRad(lng2 - lng1);
 
-  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const y = Math.sin(delta) * Math.cos(p2);
   const x =
-    Math.cos(φ1) * Math.sin(φ2) -
-    Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+    Math.cos(p1) * Math.sin(p2) -
+    Math.sin(p1) * Math.cos(p2) * Math.cos(delta);
 
   return normalizeDegrees(Math.atan2(y, x) * 180 / Math.PI);
 }
@@ -520,11 +569,14 @@ function normalizeDegrees(deg) {
   return ((deg % 360) + 360) % 360;
 }
 
+function vibrate(pattern) {
+  if ('vibrate' in navigator) navigator.vibrate(pattern);
+}
+
 function logEvent(eventType, notes) {
   const routeId = selectedRoute ? selectedRoute.RouteID : '';
   const routeName = selectedRoute ? (selectedRoute.RouteName || selectedRoute.DestinationName || routeId) : '';
   const step = selectedSteps[currentStep] || {};
-
   const callbackName = 'logCallback_' + Date.now() + Math.random().toString(36).slice(2);
 
   const params = new URLSearchParams({
