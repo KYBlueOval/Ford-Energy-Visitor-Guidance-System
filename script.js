@@ -167,6 +167,7 @@ function renderStep(shouldSpeak = true) {
   const step = selectedSteps[currentStep];
 
   el('stepCounter').textContent = `${currentStep + 1} of ${selectedSteps.length}`;
+  el('hudStep').textContent = `${currentStep + 1}/${selectedSteps.length}`;
   el('stepTitle').textContent = step.StepName || '';
   el('stepInstruction').textContent = step.Instruction || '';
 
@@ -176,6 +177,7 @@ function renderStep(shouldSpeak = true) {
     el('stepImage').style.display = 'none';
   }
 
+  renderStepDots();
   updateGuidanceText(shouldSpeak);
   updateLiveGuidance();
 }
@@ -185,10 +187,14 @@ function updateGuidanceText(shouldSpeak = true) {
 
   const direction = step.DirectionArrow || step.Instruction || '';
   const arrow = getArrowSymbol(direction);
+  const directionType = getDirectionType(direction);
 
   el('bigArrow').textContent = arrow;
   el('guidanceText').textContent = step.StepName || 'Continue Route';
   el('guidanceSubtext').textContent = step.Instruction || 'Follow the route step.';
+  el('turnBadge').textContent = getTurnBadge(directionType);
+
+  updateArClasses(directionType);
 
   if (shouldSpeak) {
     const spokenText = step.VoicePrompt || step.Instruction || step.StepName;
@@ -196,14 +202,55 @@ function updateGuidanceText(shouldSpeak = true) {
   }
 }
 
-function getArrowSymbol(direction) {
+function updateArClasses(directionType) {
+  const arrow = el('directionArrow');
+  const beam = el('routeBeam');
+
+  arrow.className = `direction-arrow ${directionType}`;
+  beam.className = `route-beam ${directionType}`;
+}
+
+function getDirectionType(direction) {
   const d = String(direction || '').toLowerCase();
 
-  if (d.includes('left')) return '←';
-  if (d.includes('right')) return '→';
-  if (d.includes('arrive')) return '✓';
-  if (d.includes('stop')) return '!';
+  if (d.includes('left')) return 'left';
+  if (d.includes('right')) return 'right';
+  if (d.includes('arrive')) return 'arrive';
+  if (d.includes('stop')) return 'arrive';
+
+  return 'straight';
+}
+
+function getTurnBadge(type) {
+  if (type === 'left') return 'TURN LEFT';
+  if (type === 'right') return 'TURN RIGHT';
+  if (type === 'arrive') return 'ARRIVAL POINT';
+  return 'CONTINUE STRAIGHT';
+}
+
+function getArrowSymbol(direction) {
+  const type = getDirectionType(direction);
+
+  if (type === 'left') return '←';
+  if (type === 'right') return '→';
+  if (type === 'arrive') return '✓';
+
   return '↑';
+}
+
+function renderStepDots() {
+  const holder = el('stepDots');
+  holder.innerHTML = '';
+
+  selectedSteps.forEach((_, index) => {
+    const dot = document.createElement('span');
+    dot.className = 'step-dot';
+
+    if (index < currentStep) dot.classList.add('complete');
+    if (index === currentStep) dot.classList.add('active');
+
+    holder.appendChild(dot);
+  });
 }
 
 function speakDirection(text) {
@@ -223,10 +270,12 @@ function speakDirection(text) {
 function startGpsWatch() {
   if (!navigator.geolocation) {
     el('gpsStatus').textContent = 'Not Supported';
+    el('hudGps').textContent = 'No GPS';
     return;
   }
 
   el('gpsStatus').textContent = 'Requesting';
+  el('hudGps').textContent = 'Requesting';
 
   if (watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
@@ -240,11 +289,14 @@ function startGpsWatch() {
         accuracy: pos.coords.accuracy
       };
 
-      el('gpsStatus').textContent = `Live ±${Math.round(pos.coords.accuracy)}m`;
+      const gpsText = `±${Math.round(pos.coords.accuracy)}m`;
+      el('gpsStatus').textContent = `Live ${gpsText}`;
+      el('hudGps').textContent = gpsText;
       updateLiveGuidance();
     },
     () => {
       el('gpsStatus').textContent = 'Denied / Unavailable';
+      el('hudGps').textContent = 'Denied';
     },
     {
       enableHighAccuracy: true,
@@ -257,10 +309,12 @@ function startGpsWatch() {
 function requestGpsOnce() {
   if (!navigator.geolocation) {
     el('gpsStatus').textContent = 'Not Supported';
+    el('hudGps').textContent = 'No GPS';
     return;
   }
 
   el('gpsStatus').textContent = 'Updating';
+  el('hudGps').textContent = 'Updating';
 
   navigator.geolocation.getCurrentPosition(
     pos => {
@@ -270,11 +324,14 @@ function requestGpsOnce() {
         accuracy: pos.coords.accuracy
       };
 
-      el('gpsStatus').textContent = `Updated ±${Math.round(pos.coords.accuracy)}m`;
+      const gpsText = `±${Math.round(pos.coords.accuracy)}m`;
+      el('gpsStatus').textContent = `Updated ${gpsText}`;
+      el('hudGps').textContent = gpsText;
       updateLiveGuidance();
     },
     () => {
       el('gpsStatus').textContent = 'GPS Failed';
+      el('hudGps').textContent = 'Failed';
     },
     {
       enableHighAccuracy: true,
@@ -303,7 +360,7 @@ function updateLiveGuidance() {
     Number(step.Longitude)
   );
 
-  el('distanceRemaining').textContent = `Distance: ${Math.round(currentDistance)} ft`;
+  el('distanceRemaining').textContent = `${Math.round(currentDistance)} ft`;
 
   const radius = Number(step.ArrivalRadiusFt || 100);
 
@@ -347,12 +404,16 @@ function finishRoute() {
   el('guidanceSubtext').textContent = 'Park and report to the appropriate security entrance.';
   el('bigArrow').textContent = '✓';
   el('distanceRemaining').textContent = 'Route complete';
+  el('turnBadge').textContent = 'ARRIVED';
+  updateArClasses('arrive');
+  renderStepDots();
   speakDirection('You have arrived. Park and report to the appropriate security entrance.');
 }
 
 function nextStep() {
   if (currentStep < selectedSteps.length - 1) {
     currentStep++;
+    hasFinishedRoute = false;
     renderStep(true);
   } else {
     finishRoute();
