@@ -13,6 +13,7 @@ let watchId = null;
 let cameraStream = null;
 let voiceEnabled = true;
 let hasFinishedRoute = false;
+let currentHeading = null;
 let sessionId = createSessionId();
 
 const el = id => document.getElementById(id);
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el('securityPhone').addEventListener('click', launchSecurityCall);
   el('voiceBtn').addEventListener('click', toggleVoice);
   el('replayBtn').addEventListener('click', replayDirection);
+  el('exitArBtn').addEventListener('click', exitArMode);
 
   window.addEventListener('deviceorientationabsolute', handleOrientation, true);
   window.addEventListener('deviceorientation', handleOrientation, true);
@@ -127,7 +129,9 @@ async function startGuidance() {
     return;
   }
 
+  document.body.classList.add('ar-active');
   el('livePanel').classList.remove('hidden');
+  el('livePanel').classList.add('fullscreen');
 
   currentStep = 0;
   hasFinishedRoute = false;
@@ -138,7 +142,20 @@ async function startGuidance() {
   startGpsWatch();
   await startCamera();
 
-  el('livePanel').scrollIntoView({ behavior: 'smooth' });
+  if (el('livePanel').requestFullscreen) {
+    el('livePanel').requestFullscreen().catch(() => {});
+  }
+}
+
+function exitArMode() {
+  stopCamera();
+
+  document.body.classList.remove('ar-active');
+  el('livePanel').classList.remove('fullscreen');
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
 }
 
 async function startCamera() {
@@ -176,7 +193,6 @@ function stopCamera() {
   }
 
   el('cameraVideo').srcObject = null;
-  logEvent('CAMERA_STOP', 'Camera stopped');
 }
 
 function renderStep(shouldSpeak = true) {
@@ -184,10 +200,9 @@ function renderStep(shouldSpeak = true) {
 
   const step = selectedSteps[currentStep];
 
-  el('stepCounter').textContent = `${currentStep + 1} of ${selectedSteps.length}`;
   el('hudStep').textContent = `${currentStep + 1}/${selectedSteps.length}`;
-  el('stepTitle').textContent = step.StepName || '';
-  el('stepInstruction').textContent = step.Instruction || '';
+  el('guidanceText').textContent = step.StepName || '';
+  el('guidanceSubtext').textContent = step.Instruction || '';
 
   if (step.ImageURL) setImage('stepImage', step.ImageURL);
   else el('stepImage').style.display = 'none';
@@ -201,15 +216,19 @@ function updateGuidanceText(shouldSpeak = true) {
   const step = selectedSteps[currentStep];
 
   const direction = step.DirectionArrow || step.Instruction || '';
-  const arrow = getArrowSymbol(direction);
   const directionType = getDirectionType(direction);
 
-  el('bigArrow').textContent = arrow;
-  el('guidanceText').textContent = step.StepName || 'Continue Route';
-  el('guidanceSubtext').textContent = step.Instruction || 'Follow the route step.';
   el('turnBadge').textContent = getTurnBadge(directionType);
 
-  updateArClasses(directionType);
+  if (directionType === 'arrive') {
+    el('bigArrow').textContent = '✓';
+    el('directionArrow').classList.add('arrive');
+  } else {
+    el('bigArrow').textContent = '↑';
+    el('directionArrow').classList.remove('arrive');
+  }
+
+  updateBearingArrow();
 
   if (shouldSpeak) {
     const spokenText = step.VoicePrompt || step.Instruction || step.StepName;
@@ -217,9 +236,31 @@ function updateGuidanceText(shouldSpeak = true) {
   }
 }
 
-function updateArClasses(directionType) {
-  el('directionArrow').className = `direction-arrow ${directionType}`;
-  el('routeBeam').className = `route-beam ${directionType}`;
+function updateBearingArrow() {
+  if (!selectedSteps.length || !currentPosition) return;
+
+  const step = selectedSteps[currentStep];
+
+  if (!step.Latitude || !step.Longitude) return;
+
+  const bearing = getBearingDegrees(
+    currentPosition.lat,
+    currentPosition.lng,
+    Number(step.Latitude),
+    Number(step.Longitude)
+  );
+
+  let rotation = bearing;
+
+  if (currentHeading !== null && !isNaN(currentHeading)) {
+    rotation = normalizeDegrees(bearing - currentHeading);
+  }
+
+  el('directionArrow').style.transform =
+    `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+  el('bigArrow').style.transform =
+    `rotate(${-rotation}deg)`;
 }
 
 function getDirectionType(direction) {
@@ -237,15 +278,7 @@ function getTurnBadge(type) {
   if (type === 'left') return 'TURN LEFT';
   if (type === 'right') return 'TURN RIGHT';
   if (type === 'arrive') return 'ARRIVAL POINT';
-  return 'CONTINUE STRAIGHT';
-}
-
-function getArrowSymbol(direction) {
-  const type = getDirectionType(direction);
-  if (type === 'left') return '←';
-  if (type === 'right') return '→';
-  if (type === 'arrive') return '✓';
-  return '↑';
+  return 'NEXT WAYPOINT';
 }
 
 function renderStepDots() {
@@ -288,13 +321,11 @@ function replayDirection() {
 
 function startGpsWatch() {
   if (!navigator.geolocation) {
-    el('gpsStatus').textContent = 'Not Supported';
     el('hudGps').textContent = 'No GPS';
     logEvent('GPS_ERROR', 'GPS not supported');
     return;
   }
 
-  el('gpsStatus').textContent = 'Requesting';
   el('hudGps').textContent = 'Requesting';
 
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
@@ -307,13 +338,11 @@ function startGpsWatch() {
         accuracy: pos.coords.accuracy
       };
 
-      const gpsText = `±${Math.round(pos.coords.accuracy)}m`;
-      el('gpsStatus').textContent = `Live ${gpsText}`;
-      el('hudGps').textContent = gpsText;
+      el('hudGps').textContent = `±${Math.round(pos.coords.accuracy)}m`;
       updateLiveGuidance();
+      updateBearingArrow();
     },
     () => {
-      el('gpsStatus').textContent = 'Denied / Unavailable';
       el('hudGps').textContent = 'Denied';
       logEvent('GPS_ERROR', 'GPS denied or unavailable');
     },
@@ -327,13 +356,11 @@ function startGpsWatch() {
 
 function requestGpsOnce() {
   if (!navigator.geolocation) {
-    el('gpsStatus').textContent = 'Not Supported';
     el('hudGps').textContent = 'No GPS';
     logEvent('GPS_ERROR', 'GPS not supported');
     return;
   }
 
-  el('gpsStatus').textContent = 'Updating';
   el('hudGps').textContent = 'Updating';
 
   navigator.geolocation.getCurrentPosition(
@@ -344,13 +371,11 @@ function requestGpsOnce() {
         accuracy: pos.coords.accuracy
       };
 
-      const gpsText = `±${Math.round(pos.coords.accuracy)}m`;
-      el('gpsStatus').textContent = `Updated ${gpsText}`;
-      el('hudGps').textContent = gpsText;
+      el('hudGps').textContent = `±${Math.round(pos.coords.accuracy)}m`;
       updateLiveGuidance();
+      updateBearingArrow();
     },
     () => {
-      el('gpsStatus').textContent = 'GPS Failed';
       el('hudGps').textContent = 'Failed';
       logEvent('GPS_ERROR', 'Manual GPS update failed');
     },
@@ -382,6 +407,7 @@ function updateLiveGuidance() {
   );
 
   el('distanceRemaining').textContent = `${Math.round(currentDistance)} ft`;
+  el('routeStatus').textContent = 'En Route';
 
   const radius = Number(step.ArrivalRadiusFt || 100);
 
@@ -403,16 +429,12 @@ function updateLiveGuidance() {
       currentStep++;
       logEvent('STEP_ADVANCE', 'Auto advanced to next waypoint');
       renderStep(true);
-      return;
     }
   }
-
-  el('routeStatus').textContent = 'En Route';
 }
 
 function advanceOrFinish() {
   if (currentStep < selectedSteps.length - 1) {
-    el('routeStatus').textContent = 'Step Reached';
     currentStep++;
     renderStep(true);
   } else {
@@ -428,7 +450,7 @@ function finishRoute() {
   el('bigArrow').textContent = '✓';
   el('distanceRemaining').textContent = 'Route complete';
   el('turnBadge').textContent = 'ARRIVED';
-  updateArClasses('arrive');
+  el('directionArrow').classList.add('arrive');
   renderStepDots();
   speakDirection('You have arrived. Park and report to the appropriate security entrance.');
   logEvent('ROUTE_COMPLETE', 'Route completed');
@@ -461,7 +483,9 @@ function handleOrientation(event) {
   else if (event.alpha !== null) heading = 360 - event.alpha;
 
   if (heading !== null && !isNaN(heading)) {
-    el('headingValue').textContent = `${Math.round(heading)}°`;
+    currentHeading = normalizeDegrees(heading);
+    el('headingValue').textContent = `${Math.round(currentHeading)}°`;
+    updateBearingArrow();
   }
 }
 
@@ -479,13 +503,32 @@ function launchSecurityCall(e) {
   window.location.href = `tel:${phone}`;
 }
 
+function getBearingDegrees(lat1, lng1, lat2, lng2) {
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δλ = toRad(lng2 - lng1);
+
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x =
+    Math.cos(φ1) * Math.sin(φ2) -
+    Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+
+  return normalizeDegrees(Math.atan2(y, x) * 180 / Math.PI);
+}
+
+function normalizeDegrees(deg) {
+  return ((deg % 360) + 360) % 360;
+}
+
 function logEvent(eventType, notes) {
   const routeId = selectedRoute ? selectedRoute.RouteID : '';
   const routeName = selectedRoute ? (selectedRoute.RouteName || selectedRoute.DestinationName || routeId) : '';
   const step = selectedSteps[currentStep] || {};
 
+  const callbackName = 'logCallback_' + Date.now() + Math.random().toString(36).slice(2);
+
   const params = new URLSearchParams({
-    callback: 'logCallback_' + Date.now(),
+    callback: callbackName,
     sessionId,
     eventType,
     routeId,
@@ -498,7 +541,6 @@ function logEvent(eventType, notes) {
     notes: notes || ''
   });
 
-  const callbackName = params.get('callback');
   window[callbackName] = () => {
     delete window[callbackName];
     script.remove();
