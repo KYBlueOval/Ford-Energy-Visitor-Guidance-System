@@ -1,5 +1,198 @@
-.live-panel {
+:root {
+  --bg: #020814;
+  --card: rgba(8, 25, 48, .94);
+  --card2: rgba(3, 14, 29, .96);
+  --line: rgba(125, 176, 255, .26);
+  --text: #f5f9ff;
+  --muted: #b9c7dc;
+  --blue: #1f7cff;
+  --blue2: #58a6ff;
+  --green: #31d17c;
+  --red: #f04438;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(31,124,255,.38), transparent 35%),
+    radial-gradient(circle at top right, rgba(49,209,124,.13), transparent 30%),
+    linear-gradient(180deg, #06152a 0%, #020814 60%, #01050d 100%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 28px 16px 46px;
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.ford-logo {
+  display: block;
+  width: min(92%, 720px);
+  max-height: 220px;
+  object-fit: contain;
+  margin: 0 auto 10px;
+}
+
+.system-title {
+  color: var(--blue2);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-size: 13px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.hero-card,
+.live-panel,
+.step-card,
+.help-card,
+.footer-card {
+  position: relative;
+  overflow: hidden;
   margin-top: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(31,124,255,.15), transparent 30%),
+    linear-gradient(135deg, var(--card), var(--card2));
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.35);
+}
+
+.hero-glow {
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(31,124,255,.16), transparent 42%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.blue-text {
+  color: var(--blue2);
+  font-weight: 900;
+  margin: 0 0 6px;
+}
+
+h1 {
+  font-size: clamp(34px, 6vw, 54px);
+  line-height: 1.02;
+  margin: 0 0 12px;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 4vw, 34px);
+}
+
+p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.hero-subtitle {
+  font-size: 19px;
+  max-width: 720px;
+  margin-bottom: 22px;
+}
+
+.label {
+  color: var(--blue2);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.route-selector-card {
+  position: relative;
+  z-index: 1;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(6,24,49,.86);
+  border: 1px solid var(--line);
+  margin-top: 18px;
+}
+
+.route-select {
+  width: 100%;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.08);
+  color: white;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.route-select option {
+  color: #111;
+}
+
+.primary-btn,
+.secondary-btn,
+.call-btn,
+.danger-btn {
+  width: 100%;
+  margin-top: 16px;
+  border: none;
+  border-radius: 18px;
+  padding: 18px;
+  font-size: 19px;
+  font-weight: 900;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: block;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #338cff, #0057ff);
+  color: white;
+  box-shadow: 0 16px 34px rgba(31,124,255,.28);
+}
+
+.secondary-btn {
+  background: rgba(255,255,255,.08);
+  color: white;
+  border: 1px solid var(--line);
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #f04438, #b42318);
+  color: white;
+}
+
+.call-btn {
+  background: linear-gradient(135deg, #55d98e, #18b868);
+  color: #02120a;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 .camera-wrap {
@@ -11,6 +204,7 @@
   border-radius: 24px;
   background: #000;
   border: 1px solid rgba(125,176,255,.3);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
 }
 
 #cameraVideo {
@@ -22,25 +216,28 @@
 .ar-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.15), transparent 45%, rgba(0,0,0,.65));
+  background:
+    radial-gradient(circle at center, transparent 20%, rgba(0,0,0,.08) 55%, rgba(0,0,0,.45) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.16), transparent 42%, rgba(0,0,0,.68));
   pointer-events: none;
 }
 
 .big-arrow {
   position: absolute;
-  top: 34%;
+  top: 33%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 145px;
-  height: 145px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 100px;
+  font-size: 102px;
   font-weight: 900;
   color: white;
-  background: rgba(31,124,255,.85);
-  box-shadow: 0 0 55px rgba(31,124,255,.95);
+  background: rgba(31,124,255,.86);
+  border: 1px solid rgba(255,255,255,.28);
+  box-shadow: 0 0 58px rgba(31,124,255,.95);
 }
 
 .ar-card {
@@ -53,6 +250,16 @@
   background: rgba(2,8,20,.88);
   border: 1px solid rgba(255,255,255,.24);
   text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.ar-card h2 {
+  margin-bottom: 8px;
+}
+
+.ar-card p {
+  margin: 4px 0;
+  font-size: 18px;
 }
 
 .status-grid {
@@ -63,38 +270,62 @@
 }
 
 .status-grid div {
-  padding: 14px;
-  border-radius: 16px;
+  padding: 16px;
+  border-radius: 18px;
   background: rgba(255,255,255,.06);
-  border: 1px solid rgba(125,176,255,.24);
+  border: 1px solid var(--line);
 }
 
-.button-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.status-grid strong {
+  font-size: 20px;
+}
+
+.step-card {
+  padding: 0;
+}
+
+.step-image {
+  width: 100%;
+  max-height: 430px;
+  object-fit: cover;
+  display: none;
+  border-radius: 26px 26px 0 0;
+}
+
+.step-content {
+  padding: 22px;
+}
+
+.help-card h2 {
+  margin-bottom: 4px;
 }
 
 .footer-card {
   text-align: center;
-}
-
-.bwrdo-logo {
-  display: block;
-  margin: 10px auto 0;
-  max-width: 360px;
-  width: 75%;
-  height: auto;
-  object-fit: contain;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .developed-by {
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 1.6px;
-  color: #b9c7dc;
+  letter-spacing: 1.8px;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 900;
+  margin: 0 0 12px;
+}
+
+.bwrdo-logo {
+  display: block;
+  margin: 0 auto;
+  max-width: 360px;
+  width: min(75%, 360px);
+  height: auto;
+  object-fit: contain;
 }
 
 .hidden {
@@ -102,19 +333,45 @@
 }
 
 @media(max-width: 620px) {
+  .app-shell {
+    padding: 16px 10px 34px;
+  }
+
+  .hero-card,
+  .live-panel,
+  .step-card,
+  .help-card,
+  .footer-card {
+    border-radius: 22px;
+    padding: 20px;
+  }
+
+  .step-card {
+    padding: 0;
+  }
+
+  .step-content {
+    padding: 18px;
+  }
+
   .camera-wrap {
     height: 72vh;
     min-height: 520px;
   }
 
   .status-grid,
-  .button-row {
+  .button-row,
+  .stacked-mobile {
     grid-template-columns: 1fr;
   }
 
   .big-arrow {
-    width: 120px;
-    height: 120px;
+    width: 122px;
+    height: 122px;
     font-size: 82px;
+  }
+
+  .ford-logo {
+    width: 96%;
   }
 }
