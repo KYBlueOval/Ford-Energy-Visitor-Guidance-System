@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Ford Energy Visitor Guidance</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css?v=20">
 </head>
 
 <body>
@@ -16,19 +16,32 @@
     </header>
 
     <section class="hero-card">
-      <h1 id="appTitle">Site Navigation</h1>
-      <p>Select your destination and start live camera guidance.</p>
+      <div class="hero-glow"></div>
 
-      <label class="label">Select Destination</label>
-      <select id="routeSelect" class="route-select">
-        <option>Loading routes...</option>
-      </select>
+      <div class="hero-content">
+        <p class="blue-text">Welcome to Ford Energy</p>
+        <h1 id="appTitle">Site Navigation</h1>
+        <p class="hero-subtitle">
+          Select your destination and start live camera guidance from the Main Gate.
+        </p>
+      </div>
 
-      <button id="startBtn" class="primary-btn">Start Live AR Guidance</button>
-      <button id="gpsBtn" class="secondary-btn">Update GPS</button>
+      <div class="route-selector-card">
+        <p class="label">Select Destination</p>
+        <select id="routeSelect" class="route-select">
+          <option>Loading routes...</option>
+        </select>
+      </div>
+
+      <div class="button-row stacked-mobile">
+        <button id="startBtn" class="primary-btn">Start Live AR Guidance</button>
+        <button id="gpsBtn" class="secondary-btn">Update GPS</button>
+      </div>
     </section>
 
     <section id="livePanel" class="live-panel hidden">
+      <h2>Live AR Guidance</h2>
+
       <div class="camera-wrap">
         <video id="cameraVideo" autoplay playsinline muted></video>
 
@@ -44,10 +57,22 @@
       </div>
 
       <div class="status-grid">
-        <div><p class="label">GPS</p><strong id="gpsStatus">Waiting</strong></div>
-        <div><p class="label">Step</p><strong id="stepCounter">--</strong></div>
-        <div><p class="label">Heading</p><strong id="headingValue">--</strong></div>
-        <div><p class="label">Route</p><strong id="routeStatus">Not Started</strong></div>
+        <div>
+          <p class="label">GPS</p>
+          <strong id="gpsStatus">Waiting</strong>
+        </div>
+        <div>
+          <p class="label">Step</p>
+          <strong id="stepCounter">--</strong>
+        </div>
+        <div>
+          <p class="label">Heading</p>
+          <strong id="headingValue">--</strong>
+        </div>
+        <div>
+          <p class="label">Route</p>
+          <strong id="routeStatus">Not Started</strong>
+        </div>
       </div>
 
       <div class="button-row">
@@ -60,8 +85,10 @@
 
     <section class="step-card">
       <img id="stepImage" class="step-image" alt="Route step">
-      <h2 id="stepTitle">Route Step</h2>
-      <p id="stepInstruction">Select a route to begin.</p>
+      <div class="step-content">
+        <h2 id="stepTitle">Route Step</h2>
+        <p id="stepInstruction">Select a route to begin.</p>
+      </div>
     </section>
 
     <section class="help-card">
@@ -77,6 +104,6 @@
 
   </main>
 
-  <script src="script.js"></script>
+  <script src="./script.js?v=20"></script>
 </body>
 </html>
