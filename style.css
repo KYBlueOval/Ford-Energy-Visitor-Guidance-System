@@ -31,8 +31,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+body.ar-active {
+  overflow: hidden;
+}
+
 .app-shell {
-  width: 100%;
   max-width: 940px;
   margin: 0 auto;
   padding: 28px 16px 46px;
@@ -61,8 +64,6 @@ body {
 }
 
 .hero-card,
-.live-panel,
-.step-card,
 .help-card,
 .footer-card {
   position: relative;
@@ -75,18 +76,6 @@ body {
   border: 1px solid var(--line);
   border-radius: 28px;
   box-shadow: 0 24px 70px rgba(0,0,0,.35);
-}
-
-.hero-glow {
-  position: absolute;
-  inset: -40%;
-  background: radial-gradient(circle, rgba(31,124,255,.16), transparent 42%);
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
 }
 
 .blue-text {
@@ -127,8 +116,6 @@ p {
 }
 
 .route-selector-card {
-  position: relative;
-  z-index: 1;
   padding: 18px;
   border-radius: 20px;
   background: rgba(6,24,49,.86);
@@ -196,14 +183,28 @@ p {
   gap: 14px;
 }
 
-/* ===================== */
-/* NEXT LEVEL AR HUD     */
-/* ===================== */
+.compact {
+  padding: 14px;
+  font-size: 16px;
+}
+
+.live-panel {
+  margin-top: 18px;
+}
+
+.live-panel.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  margin: 0;
+  padding: 0;
+  background: #000;
+}
 
 .camera-wrap {
   position: relative;
   width: 100%;
-  height: 72vh;
+  height: 78vh;
   min-height: 560px;
   overflow: hidden;
   border-radius: 28px;
@@ -212,6 +213,14 @@ p {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.06),
     0 24px 80px rgba(0,0,0,.48);
+}
+
+.live-panel.fullscreen .camera-wrap {
+  height: 100dvh;
+  min-height: 100dvh;
+  width: 100vw;
+  border-radius: 0;
+  border: none;
 }
 
 #cameraVideo {
@@ -231,19 +240,8 @@ p {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at center, transparent 24%, rgba(0,0,0,.10) 52%, rgba(0,0,0,.62) 100%),
-    linear-gradient(180deg, rgba(0,0,0,.10), transparent 42%, rgba(0,0,0,.74));
-}
-
-.hud-grid {
-  position: absolute;
-  inset: 0;
-  opacity: .22;
-  background-image:
-    linear-gradient(rgba(88,166,255,.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(88,166,255,.22) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.8) 35%, black 100%);
+    radial-gradient(circle at center, transparent 22%, rgba(0,0,0,.08) 54%, rgba(0,0,0,.70) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.20), transparent 40%, rgba(0,0,0,.78));
 }
 
 .hud-topbar {
@@ -253,12 +251,24 @@ p {
   right: 14px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  z-index: 4;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.exit-ar-btn {
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.45);
+  color: white;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 900;
+  backdrop-filter: blur(10px);
 }
 
 .hud-chip {
-  min-width: 120px;
+  min-width: 112px;
   padding: 10px 14px;
   border-radius: 999px;
   background: rgba(1, 10, 25, .72);
@@ -267,7 +277,7 @@ p {
   box-shadow: 0 0 25px rgba(31,124,255,.16);
 }
 
-.chip-label {
+.hud-chip span {
   color: var(--blue2);
   font-size: 10px;
   font-weight: 900;
@@ -276,122 +286,61 @@ p {
 }
 
 .hud-chip strong {
-  color: #fff;
+  color: white;
   font-size: 15px;
 }
 
-.ar-scene {
+.waypoint-hud {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
 }
 
-.target-ring {
+.waypoint-ring {
   position: absolute;
-  top: 48%;
+  top: 43%;
   left: 50%;
-  width: 260px;
-  height: 260px;
+  width: min(56vw, 370px);
+  height: min(56vw, 370px);
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 2px solid rgba(24,229,255,.35);
+  border: 2px solid rgba(24,229,255,.34);
   box-shadow:
-    0 0 28px rgba(24,229,255,.25),
-    inset 0 0 28px rgba(24,229,255,.15);
-  animation: targetPulse 2.4s infinite ease-in-out;
+    0 0 34px rgba(24,229,255,.30),
+    inset 0 0 34px rgba(24,229,255,.16);
+  animation: pulseRing 2.4s infinite ease-in-out;
 }
 
-.target-ring::before,
-.target-ring::after {
+.waypoint-ring::before {
   content: "";
   position: absolute;
-  background: rgba(24,229,255,.45);
-  box-shadow: 0 0 14px rgba(24,229,255,.75);
-}
-
-.target-ring::before {
+  left: 50%;
+  top: -42px;
   width: 2px;
-  height: 72px;
-  top: -36px;
-  left: 50%;
+  height: 84px;
+  background: rgba(24,229,255,.56);
+  box-shadow: 0 0 18px rgba(24,229,255,.9);
 }
 
-.target-ring::after {
-  height: 2px;
-  width: 72px;
-  left: -36px;
-  top: 50%;
-}
-
-.target-dot {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: white;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 22px rgba(255,255,255,.95);
-}
-
-.route-beam {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  width: 34px;
-  height: 34vh;
-  transform-origin: top center;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(24,229,255,.0), rgba(24,229,255,.85), rgba(31,124,255,.0));
-  filter: blur(.2px);
-  opacity: .88;
-  box-shadow:
-    0 0 22px rgba(24,229,255,.65),
-    0 0 55px rgba(31,124,255,.42);
-  animation: beamFlow 1.45s infinite linear;
-}
-
-.route-beam::after {
+.waypoint-ring::after {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,.0) 0px,
-    rgba(255,255,255,.0) 28px,
-    rgba(255,255,255,.65) 36px,
-    rgba(255,255,255,.0) 48px
-  );
-  animation: laneDash 1s infinite linear;
+  left: -42px;
+  top: 50%;
+  width: 84px;
+  height: 2px;
+  background: rgba(24,229,255,.56);
+  box-shadow: 0 0 18px rgba(24,229,255,.9);
 }
 
-.route-beam.left {
-  transform: translateX(-50%) rotate(-48deg);
-}
-
-.route-beam.right {
-  transform: translateX(-50%) rotate(48deg);
-}
-
-.route-beam.arrive {
-  height: 18vh;
-  background: linear-gradient(180deg, rgba(49,209,124,.0), rgba(49,209,124,.88), rgba(49,209,124,.0));
-  box-shadow:
-    0 0 22px rgba(49,209,124,.72),
-    0 0 55px rgba(49,209,124,.45);
-}
-
-.direction-arrow {
+.waypoint-arrow {
   position: absolute;
-  top: 31%;
+  top: 43%;
   left: 50%;
-  width: 158px;
-  height: 158px;
-  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 160px;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: center;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -400,82 +349,117 @@ p {
   font-weight: 900;
   background:
     radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
-    linear-gradient(135deg, rgba(24,229,255,.95), rgba(0,87,255,.95));
+    linear-gradient(135deg, rgba(24,229,255,.96), rgba(0,87,255,.96));
   border: 1px solid rgba(255,255,255,.34);
   box-shadow:
-    0 0 30px rgba(24,229,255,.65),
-    0 0 70px rgba(31,124,255,.75),
+    0 0 32px rgba(24,229,255,.70),
+    0 0 78px rgba(31,124,255,.75),
     inset 0 0 18px rgba(255,255,255,.18);
   animation: arrowFloat 1.8s infinite ease-in-out;
 }
 
-.direction-arrow.left {
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
-    linear-gradient(135deg, rgba(255,193,7,.98), rgba(255,111,0,.95));
-  box-shadow:
-    0 0 35px rgba(255,193,7,.68),
-    0 0 75px rgba(255,111,0,.68),
-    inset 0 0 18px rgba(255,255,255,.18);
+.waypoint-arrow span {
+  display: block;
+  transform: rotate(0deg);
 }
 
-.direction-arrow.right {
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
-    linear-gradient(135deg, rgba(168,85,247,.98), rgba(59,130,246,.95));
-  box-shadow:
-    0 0 35px rgba(168,85,247,.68),
-    0 0 75px rgba(59,130,246,.68),
-    inset 0 0 18px rgba(255,255,255,.18);
-}
-
-.direction-arrow.arrive {
+.waypoint-arrow.arrive {
   background:
     radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
     linear-gradient(135deg, rgba(49,209,124,.98), rgba(0,166,90,.95));
-  box-shadow:
-    0 0 35px rgba(49,209,124,.72),
-    0 0 75px rgba(49,209,124,.58),
-    inset 0 0 18px rgba(255,255,255,.18);
-}
-
-.distance-orbit {
-  position: absolute;
-  top: calc(31% + 92px);
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .distance-chip {
-  padding: 10px 16px;
+  position: absolute;
+  top: calc(43% + 105px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 18px;
   border-radius: 999px;
-  background: rgba(1,10,25,.78);
-  color: #fff;
-  font-size: 17px;
+  background: rgba(1,10,25,.82);
+  color: white;
+  font-size: 18px;
   font-weight: 900;
   border: 1px solid rgba(88,166,255,.42);
-  box-shadow: 0 0 24px rgba(31,124,255,.26);
+  box-shadow: 0 0 24px rgba(31,124,255,.28);
   backdrop-filter: blur(10px);
 }
 
-.ar-card {
+.mini-command-bar {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(74px + env(safe-area-inset-top));
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  z-index: 8;
+}
+
+.mini-command-bar div {
+  min-width: 130px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.38);
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(10px);
+}
+
+.mini-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  color: var(--blue2);
+  text-transform: uppercase;
+}
+
+.floating-step-panel {
   position: absolute;
   left: 18px;
   right: 18px;
-  bottom: 24px;
-  z-index: 5;
-  padding: 22px;
-  border-radius: 26px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 12;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 28px;
   background: rgba(2,8,20,.88);
   border: 1px solid rgba(255,255,255,.24);
-  text-align: center;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0,0,0,.55);
+  pointer-events: auto;
+}
+
+.step-panel-image-wrap {
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255,255,255,.08);
+  min-height: 130px;
+}
+
+.step-image {
+  width: 100%;
+  height: 100%;
+  min-height: 130px;
+  object-fit: cover;
+  display: none;
+}
+
+.step-panel-content h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(23px, 4vw, 38px);
+}
+
+.step-panel-content p {
+  margin: 5px 0;
+  font-size: 17px;
 }
 
 .turn-badge {
   display: inline-block;
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   padding: 7px 12px;
   border-radius: 999px;
   color: #001425;
@@ -486,20 +470,10 @@ p {
   text-transform: uppercase;
 }
 
-.ar-card h2 {
-  margin-bottom: 8px;
-}
-
-.ar-card p {
-  margin: 4px 0;
-  font-size: 18px;
-}
-
 .step-dots {
   display: flex;
-  justify-content: center;
   gap: 8px;
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 .step-dot {
@@ -516,40 +490,6 @@ p {
 
 .step-dot.complete {
   background: var(--green);
-}
-
-.status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 16px;
-}
-
-.status-grid div {
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid var(--line);
-}
-
-.status-grid strong {
-  font-size: 20px;
-}
-
-.step-card {
-  padding: 0;
-}
-
-.step-image {
-  width: 100%;
-  max-height: 430px;
-  object-fit: cover;
-  display: none;
-  border-radius: 26px 26px 0 0;
-}
-
-.step-content {
-  padding: 22px;
 }
 
 .help-card h2 {
@@ -589,68 +529,52 @@ p {
 }
 
 @keyframes arrowFloat {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -57%) scale(1.04); }
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -12px; }
 }
 
-@keyframes beamFlow {
-  0% { opacity: .68; }
-  50% { opacity: 1; }
-  100% { opacity: .68; }
+@keyframes pulseRing {
+  0%, 100% { opacity: .58; transform: translate(-50%, -50%) scale(.94); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
 }
 
-@keyframes laneDash {
-  0% { background-position-y: 0px; }
-  100% { background-position-y: 72px; }
-}
-
-@keyframes targetPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(.94); opacity: .62; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-}
-
-@media(max-width: 620px) {
+@media(max-width: 720px) {
   .app-shell {
     padding: 16px 10px 34px;
   }
 
   .hero-card,
-  .live-panel,
-  .step-card,
   .help-card,
   .footer-card {
     border-radius: 22px;
     padding: 20px;
   }
 
-  .step-card {
-    padding: 0;
-  }
-
-  .step-content {
-    padding: 18px;
-  }
-
-  .camera-wrap {
-    height: 76vh;
-    min-height: 560px;
-  }
-
-  .status-grid,
   .button-row,
   .stacked-mobile {
     grid-template-columns: 1fr;
   }
 
-  .direction-arrow {
-    width: 126px;
-    height: 126px;
+  .floating-step-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .step-panel-image-wrap {
+    max-height: 170px;
+  }
+
+  .waypoint-arrow {
+    width: 130px;
+    height: 130px;
     font-size: 86px;
   }
 
-  .target-ring {
-    width: 210px;
-    height: 210px;
+  .distance-chip {
+    top: calc(43% + 88px);
+  }
+
+  .mini-command-bar {
+    display: none;
   }
 
   .ford-logo {
