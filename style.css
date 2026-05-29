@@ -2,13 +2,14 @@
   --bg: #020814;
   --card: rgba(8, 25, 48, .94);
   --card2: rgba(3, 14, 29, .96);
-  --line: rgba(125, 176, 255, .26);
+  --line: rgba(125, 176, 255, .28);
   --text: #f5f9ff;
   --muted: #b9c7dc;
   --blue: #1f7cff;
   --blue2: #58a6ff;
   --green: #31d17c;
   --red: #f04438;
+  --cyan: #18e5ff;
 }
 
 * {
@@ -195,16 +196,22 @@ p {
   gap: 14px;
 }
 
+/* ===================== */
+/* NEXT LEVEL AR HUD     */
+/* ===================== */
+
 .camera-wrap {
   position: relative;
   width: 100%;
-  height: 70vh;
-  min-height: 520px;
+  height: 72vh;
+  min-height: 560px;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 28px;
   background: #000;
-  border: 1px solid rgba(125,176,255,.3);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  border: 1px solid rgba(125,176,255,.36);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 24px 80px rgba(0,0,0,.48);
 }
 
 #cameraVideo {
@@ -216,28 +223,239 @@ p {
 .ar-overlay {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at center, transparent 20%, rgba(0,0,0,.08) 55%, rgba(0,0,0,.45) 100%),
-    linear-gradient(180deg, rgba(0,0,0,.16), transparent 42%, rgba(0,0,0,.68));
   pointer-events: none;
+  overflow: hidden;
 }
 
-.big-arrow {
+.hud-vignette {
   position: absolute;
-  top: 33%;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, transparent 24%, rgba(0,0,0,.10) 52%, rgba(0,0,0,.62) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.10), transparent 42%, rgba(0,0,0,.74));
+}
+
+.hud-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  background-image:
+    linear-gradient(rgba(88,166,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,.22) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.8) 35%, black 100%);
+}
+
+.hud-topbar {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 4;
+}
+
+.hud-chip {
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(1, 10, 25, .72);
+  border: 1px solid rgba(88,166,255,.34);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 25px rgba(31,124,255,.16);
+}
+
+.chip-label {
+  color: var(--blue2);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  display: block;
+}
+
+.hud-chip strong {
+  color: #fff;
+  font-size: 15px;
+}
+
+.ar-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.target-ring {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(24,229,255,.35);
+  box-shadow:
+    0 0 28px rgba(24,229,255,.25),
+    inset 0 0 28px rgba(24,229,255,.15);
+  animation: targetPulse 2.4s infinite ease-in-out;
+}
+
+.target-ring::before,
+.target-ring::after {
+  content: "";
+  position: absolute;
+  background: rgba(24,229,255,.45);
+  box-shadow: 0 0 14px rgba(24,229,255,.75);
+}
+
+.target-ring::before {
+  width: 2px;
+  height: 72px;
+  top: -36px;
+  left: 50%;
+}
+
+.target-ring::after {
+  height: 2px;
+  width: 72px;
+  left: -36px;
+  top: 50%;
+}
+
+.target-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 150px;
-  height: 150px;
+  box-shadow: 0 0 22px rgba(255,255,255,.95);
+}
+
+.route-beam {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 34px;
+  height: 34vh;
+  transform-origin: top center;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(24,229,255,.0), rgba(24,229,255,.85), rgba(31,124,255,.0));
+  filter: blur(.2px);
+  opacity: .88;
+  box-shadow:
+    0 0 22px rgba(24,229,255,.65),
+    0 0 55px rgba(31,124,255,.42);
+  animation: beamFlow 1.45s infinite linear;
+}
+
+.route-beam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,.0) 0px,
+    rgba(255,255,255,.0) 28px,
+    rgba(255,255,255,.65) 36px,
+    rgba(255,255,255,.0) 48px
+  );
+  animation: laneDash 1s infinite linear;
+}
+
+.route-beam.left {
+  transform: translateX(-50%) rotate(-48deg);
+}
+
+.route-beam.right {
+  transform: translateX(-50%) rotate(48deg);
+}
+
+.route-beam.arrive {
+  height: 18vh;
+  background: linear-gradient(180deg, rgba(49,209,124,.0), rgba(49,209,124,.88), rgba(49,209,124,.0));
+  box-shadow:
+    0 0 22px rgba(49,209,124,.72),
+    0 0 55px rgba(49,209,124,.45);
+}
+
+.direction-arrow {
+  position: absolute;
+  top: 31%;
+  left: 50%;
+  width: 158px;
+  height: 158px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 102px;
-  font-weight: 900;
   color: white;
-  background: rgba(31,124,255,.86);
-  border: 1px solid rgba(255,255,255,.28);
-  box-shadow: 0 0 58px rgba(31,124,255,.95);
+  font-size: 108px;
+  font-weight: 900;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
+    linear-gradient(135deg, rgba(24,229,255,.95), rgba(0,87,255,.95));
+  border: 1px solid rgba(255,255,255,.34);
+  box-shadow:
+    0 0 30px rgba(24,229,255,.65),
+    0 0 70px rgba(31,124,255,.75),
+    inset 0 0 18px rgba(255,255,255,.18);
+  animation: arrowFloat 1.8s infinite ease-in-out;
+}
+
+.direction-arrow.left {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
+    linear-gradient(135deg, rgba(255,193,7,.98), rgba(255,111,0,.95));
+  box-shadow:
+    0 0 35px rgba(255,193,7,.68),
+    0 0 75px rgba(255,111,0,.68),
+    inset 0 0 18px rgba(255,255,255,.18);
+}
+
+.direction-arrow.right {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
+    linear-gradient(135deg, rgba(168,85,247,.98), rgba(59,130,246,.95));
+  box-shadow:
+    0 0 35px rgba(168,85,247,.68),
+    0 0 75px rgba(59,130,246,.68),
+    inset 0 0 18px rgba(255,255,255,.18);
+}
+
+.direction-arrow.arrive {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 28%),
+    linear-gradient(135deg, rgba(49,209,124,.98), rgba(0,166,90,.95));
+  box-shadow:
+    0 0 35px rgba(49,209,124,.72),
+    0 0 75px rgba(49,209,124,.58),
+    inset 0 0 18px rgba(255,255,255,.18);
+}
+
+.distance-orbit {
+  position: absolute;
+  top: calc(31% + 92px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.distance-chip {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(1,10,25,.78);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
+  border: 1px solid rgba(88,166,255,.42);
+  box-shadow: 0 0 24px rgba(31,124,255,.26);
+  backdrop-filter: blur(10px);
 }
 
 .ar-card {
@@ -245,12 +463,27 @@ p {
   left: 18px;
   right: 18px;
   bottom: 24px;
+  z-index: 5;
   padding: 22px;
-  border-radius: 24px;
+  border-radius: 26px;
   background: rgba(2,8,20,.88);
   border: 1px solid rgba(255,255,255,.24);
   text-align: center;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+}
+
+.turn-badge {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: #001425;
+  background: linear-gradient(135deg, #8df4ff, #58a6ff);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .ar-card h2 {
@@ -260,6 +493,29 @@ p {
 .ar-card p {
   margin: 4px 0;
   font-size: 18px;
+}
+
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.step-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.25);
+}
+
+.step-dot.active {
+  background: var(--cyan);
+  box-shadow: 0 0 16px rgba(24,229,255,.9);
+}
+
+.step-dot.complete {
+  background: var(--green);
 }
 
 .status-grid {
@@ -332,6 +588,27 @@ p {
   display: none !important;
 }
 
+@keyframes arrowFloat {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -57%) scale(1.04); }
+}
+
+@keyframes beamFlow {
+  0% { opacity: .68; }
+  50% { opacity: 1; }
+  100% { opacity: .68; }
+}
+
+@keyframes laneDash {
+  0% { background-position-y: 0px; }
+  100% { background-position-y: 72px; }
+}
+
+@keyframes targetPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(.94); opacity: .62; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+}
+
 @media(max-width: 620px) {
   .app-shell {
     padding: 16px 10px 34px;
@@ -355,8 +632,8 @@ p {
   }
 
   .camera-wrap {
-    height: 72vh;
-    min-height: 520px;
+    height: 76vh;
+    min-height: 560px;
   }
 
   .status-grid,
@@ -365,10 +642,15 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .big-arrow {
-    width: 122px;
-    height: 122px;
-    font-size: 82px;
+  .direction-arrow {
+    width: 126px;
+    height: 126px;
+    font-size: 86px;
+  }
+
+  .target-ring {
+    width: 210px;
+    height: 210px;
   }
 
   .ford-logo {
