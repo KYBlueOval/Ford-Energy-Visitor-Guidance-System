@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Ford Energy Visitor Guidance</title>
-  <link rel="stylesheet" href="./style.css?v=20">
+  <link rel="stylesheet" href="./style.css?v=30">
 </head>
 
 <body>
@@ -46,12 +46,43 @@
         <video id="cameraVideo" autoplay playsinline muted></video>
 
         <div class="ar-overlay">
-          <div id="bigArrow" class="big-arrow">↑</div>
+          <div class="hud-grid"></div>
+          <div class="hud-vignette"></div>
+
+          <div class="hud-topbar">
+            <div class="hud-chip">
+              <span class="chip-label">GPS</span>
+              <strong id="hudGps">Waiting</strong>
+            </div>
+
+            <div class="hud-chip">
+              <span class="chip-label">STEP</span>
+              <strong id="hudStep">--</strong>
+            </div>
+          </div>
+
+          <div id="arScene" class="ar-scene">
+            <div class="target-ring">
+              <div class="target-dot"></div>
+            </div>
+
+            <div id="routeBeam" class="route-beam straight"></div>
+
+            <div id="directionArrow" class="direction-arrow straight">
+              <span id="bigArrow">↑</span>
+            </div>
+
+            <div class="distance-orbit">
+              <div id="distanceRemaining" class="distance-chip">Distance: --</div>
+            </div>
+          </div>
 
           <div class="ar-card">
+            <p id="turnBadge" class="turn-badge">GUIDANCE ACTIVE</p>
             <h2 id="guidanceText">Loading guidance...</h2>
             <p id="guidanceSubtext"></p>
-            <p id="distanceRemaining">Distance: --</p>
+
+            <div id="stepDots" class="step-dots"></div>
           </div>
         </div>
       </div>
@@ -104,6 +135,6 @@
 
   </main>
 
-  <script src="./script.js?v=20"></script>
+  <script src="./script.js?v=30"></script>
 </body>
 </html>
