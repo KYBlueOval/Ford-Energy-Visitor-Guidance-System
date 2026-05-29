@@ -1,149 +1,16 @@
-:root {
-  --bg: #020814;
-  --card: rgba(8, 25, 48, .94);
-  --line: rgba(125, 176, 255, .24);
-  --text: #f5f9ff;
-  --muted: #b9c7dc;
-  --blue: #1f7cff;
-  --blue2: #58a6ff;
-  --green: #31d17c;
-  --red: #f04438;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(circle at top left, rgba(31,124,255,.36), transparent 35%),
-    linear-gradient(180deg, #06152a 0%, #020814 60%, #01050d 100%);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.app-shell {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 22px 14px 40px;
-}
-
-.brand-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.ford-logo {
-  width: 96%;
-  max-width: 720px;
-  display: block;
-  margin: 0 auto 8px;
-}
-
-.system-title {
-  color: var(--blue2);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: 900;
-}
-
-.hero-card,
-.step-card,
-.help-card,
-.footer-card,
 .live-panel {
   margin-top: 18px;
-  padding: 22px;
-  background: linear-gradient(135deg, rgba(8,25,48,.96), rgba(3,14,29,.96));
-  border: 1px solid var(--line);
-  border-radius: 26px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.35);
-}
-
-h1 {
-  font-size: 38px;
-  margin: 0 0 10px;
-}
-
-h2 {
-  margin-top: 0;
-}
-
-p {
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.label {
-  color: var(--blue2);
-  font-weight: 900;
-  text-transform: uppercase;
-  font-size: 13px;
-}
-
-.route-select {
-  width: 100%;
-  margin-top: 8px;
-  padding: 18px;
-  border-radius: 16px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.08);
-  color: white;
-  font-size: 19px;
-  font-weight: 800;
-}
-
-.route-select option {
-  color: #111;
-}
-
-.primary-btn,
-.secondary-btn,
-.call-btn,
-.danger-btn {
-  width: 100%;
-  margin-top: 16px;
-  border: none;
-  border-radius: 17px;
-  padding: 18px;
-  font-size: 20px;
-  font-weight: 900;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
-  display: block;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #338cff, #0057ff);
-  color: white;
-}
-
-.secondary-btn {
-  background: rgba(255,255,255,.08);
-  color: white;
-  border: 1px solid var(--line);
-}
-
-.danger-btn {
-  background: var(--red);
-  color: white;
-}
-
-.call-btn {
-  background: linear-gradient(135deg, #55d98e, #18b868);
-  color: #02120a;
 }
 
 .camera-wrap {
   position: relative;
   width: 100%;
-  height: 68vh;
-  min-height: 480px;
+  height: 70vh;
+  min-height: 520px;
   overflow: hidden;
   border-radius: 24px;
   background: #000;
+  border: 1px solid rgba(125,176,255,.3);
 }
 
 #cameraVideo {
@@ -155,13 +22,13 @@ p {
 .ar-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.2), transparent 45%, rgba(0,0,0,.65));
+  background: linear-gradient(180deg, rgba(0,0,0,.15), transparent 45%, rgba(0,0,0,.65));
   pointer-events: none;
 }
 
 .big-arrow {
   position: absolute;
-  top: 32%;
+  top: 34%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 145px;
@@ -172,8 +39,8 @@ p {
   font-size: 100px;
   font-weight: 900;
   color: white;
-  background: rgba(31,124,255,.82);
-  box-shadow: 0 0 55px rgba(31,124,255,.9);
+  background: rgba(31,124,255,.85);
+  box-shadow: 0 0 55px rgba(31,124,255,.95);
 }
 
 .ar-card {
@@ -183,14 +50,9 @@ p {
   bottom: 24px;
   padding: 22px;
   border-radius: 24px;
-  background: rgba(2,8,20,.86);
+  background: rgba(2,8,20,.88);
   border: 1px solid rgba(255,255,255,.24);
   text-align: center;
-}
-
-.ar-card h2 {
-  margin-bottom: 8px;
-  font-size: 26px;
 }
 
 .status-grid {
@@ -204,7 +66,7 @@ p {
   padding: 14px;
   border-radius: 16px;
   background: rgba(255,255,255,.06);
-  border: 1px solid var(--line);
+  border: 1px solid rgba(125,176,255,.24);
 }
 
 .button-row {
@@ -213,21 +75,26 @@ p {
   gap: 14px;
 }
 
-.step-image {
-  width: 100%;
-  max-height: 360px;
-  object-fit: cover;
-  border-radius: 18px;
-  display: none;
-}
-
 .footer-card {
   text-align: center;
 }
 
 .bwrdo-logo {
+  display: block;
+  margin: 10px auto 0;
   max-width: 360px;
-  width: 80%;
+  width: 75%;
+  height: auto;
+  object-fit: contain;
+}
+
+.developed-by {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  color: #b9c7dc;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .hidden {
@@ -235,10 +102,6 @@ p {
 }
 
 @media(max-width: 620px) {
-  h1 {
-    font-size: 32px;
-  }
-
   .camera-wrap {
     height: 72vh;
     min-height: 520px;
