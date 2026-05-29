@@ -17,14 +17,15 @@
 
     <section class="hero-card">
       <h1 id="appTitle">Site Navigation</h1>
-      <p>Select your destination and follow the guided route from the Main Gate.</p>
+      <p>Select your destination and start live camera guidance.</p>
 
       <label class="label">Select Destination</label>
       <select id="routeSelect" class="route-select">
         <option>Loading routes...</option>
       </select>
 
-      <button id="startBtn" class="primary-btn">Start Live Guidance</button>
+      <button id="startBtn" class="primary-btn">Start Live AR Guidance</button>
+      <button id="gpsBtn" class="secondary-btn">Update GPS</button>
     </section>
 
     <section id="livePanel" class="live-panel hidden">
@@ -43,22 +44,10 @@
       </div>
 
       <div class="status-grid">
-        <div>
-          <p class="label">GPS</p>
-          <strong id="gpsStatus">Waiting</strong>
-        </div>
-        <div>
-          <p class="label">Step</p>
-          <strong id="stepCounter">--</strong>
-        </div>
-        <div>
-          <p class="label">Heading</p>
-          <strong id="headingValue">--</strong>
-        </div>
-        <div>
-          <p class="label">Route</p>
-          <strong id="routeStatus">Not Started</strong>
-        </div>
+        <div><p class="label">GPS</p><strong id="gpsStatus">Waiting</strong></div>
+        <div><p class="label">Step</p><strong id="stepCounter">--</strong></div>
+        <div><p class="label">Heading</p><strong id="headingValue">--</strong></div>
+        <div><p class="label">Route</p><strong id="routeStatus">Not Started</strong></div>
       </div>
 
       <div class="button-row">
@@ -70,7 +59,7 @@
     </section>
 
     <section class="step-card">
-      <img id="stepImage" class="step-image" alt="Step Image">
+      <img id="stepImage" class="step-image" alt="Route step">
       <h2 id="stepTitle">Route Step</h2>
       <p id="stepInstruction">Select a route to begin.</p>
     </section>
@@ -82,7 +71,7 @@
     </section>
 
     <footer class="footer-card">
-      <p>Developed By</p>
+      <p class="developed-by">Developed By</p>
       <img id="bwrdoLogo" class="bwrdo-logo" alt="BWRDO">
     </footer>
 
