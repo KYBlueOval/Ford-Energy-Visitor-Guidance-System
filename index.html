@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Ford Energy Visitor Guidance</title>
-  <link rel="stylesheet" href="./style.css?v=30">
+  <link rel="stylesheet" href="./style.css?v=40">
 </head>
 
 <body>
@@ -21,9 +21,7 @@
       <div class="hero-content">
         <p class="blue-text">Welcome to Ford Energy</p>
         <h1 id="appTitle">Site Navigation</h1>
-        <p class="hero-subtitle">
-          Select your destination and start live camera guidance from the Main Gate.
-        </p>
+        <p class="hero-subtitle">Select your destination and start live camera guidance from the Main Gate.</p>
       </div>
 
       <div class="route-selector-card">
@@ -36,6 +34,11 @@
       <div class="button-row stacked-mobile">
         <button id="startBtn" class="primary-btn">Start Live AR Guidance</button>
         <button id="gpsBtn" class="secondary-btn">Update GPS</button>
+      </div>
+
+      <div class="button-row stacked-mobile">
+        <button id="voiceBtn" class="secondary-btn">Voice: On</button>
+        <button id="replayBtn" class="secondary-btn">Replay Direction</button>
       </div>
     </section>
 
@@ -50,60 +53,31 @@
           <div class="hud-vignette"></div>
 
           <div class="hud-topbar">
-            <div class="hud-chip">
-              <span class="chip-label">GPS</span>
-              <strong id="hudGps">Waiting</strong>
-            </div>
-
-            <div class="hud-chip">
-              <span class="chip-label">STEP</span>
-              <strong id="hudStep">--</strong>
-            </div>
+            <div class="hud-chip"><span class="chip-label">GPS</span><strong id="hudGps">Waiting</strong></div>
+            <div class="hud-chip"><span class="chip-label">STEP</span><strong id="hudStep">--</strong></div>
           </div>
 
           <div id="arScene" class="ar-scene">
-            <div class="target-ring">
-              <div class="target-dot"></div>
-            </div>
-
+            <div class="target-ring"><div class="target-dot"></div></div>
             <div id="routeBeam" class="route-beam straight"></div>
-
-            <div id="directionArrow" class="direction-arrow straight">
-              <span id="bigArrow">↑</span>
-            </div>
-
-            <div class="distance-orbit">
-              <div id="distanceRemaining" class="distance-chip">Distance: --</div>
-            </div>
+            <div id="directionArrow" class="direction-arrow straight"><span id="bigArrow">↑</span></div>
+            <div class="distance-orbit"><div id="distanceRemaining" class="distance-chip">Distance: --</div></div>
           </div>
 
           <div class="ar-card">
             <p id="turnBadge" class="turn-badge">GUIDANCE ACTIVE</p>
             <h2 id="guidanceText">Loading guidance...</h2>
             <p id="guidanceSubtext"></p>
-
             <div id="stepDots" class="step-dots"></div>
           </div>
         </div>
       </div>
 
       <div class="status-grid">
-        <div>
-          <p class="label">GPS</p>
-          <strong id="gpsStatus">Waiting</strong>
-        </div>
-        <div>
-          <p class="label">Step</p>
-          <strong id="stepCounter">--</strong>
-        </div>
-        <div>
-          <p class="label">Heading</p>
-          <strong id="headingValue">--</strong>
-        </div>
-        <div>
-          <p class="label">Route</p>
-          <strong id="routeStatus">Not Started</strong>
-        </div>
+        <div><p class="label">GPS</p><strong id="gpsStatus">Waiting</strong></div>
+        <div><p class="label">Step</p><strong id="stepCounter">--</strong></div>
+        <div><p class="label">Heading</p><strong id="headingValue">--</strong></div>
+        <div><p class="label">Route</p><strong id="routeStatus">Not Started</strong></div>
       </div>
 
       <div class="button-row">
@@ -135,6 +109,6 @@
 
   </main>
 
-  <script src="./script.js?v=30"></script>
+  <script src="./script.js?v=40"></script>
 </body>
 </html>
