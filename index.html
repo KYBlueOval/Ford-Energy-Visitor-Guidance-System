@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Ford Energy Visitor Guidance</title>
-  <link rel="stylesheet" href="./style.css?v=45">
+  <link rel="stylesheet" href="./style.css?v=500">
 </head>
+
 <body>
   <main class="app-shell">
+
     <header class="brand-header">
       <img id="logo" class="ford-logo" alt="Ford Energy">
       <p class="system-title">Visitor Guidance System</p>
@@ -20,7 +22,20 @@
 
       <div class="route-selector-card">
         <p class="label">Select Destination</p>
-        <select id="routeSelect" class="route-select"><option>Loading routes...</option></select>
+        <select id="routeSelect" class="route-select">
+          <option>Loading routes...</option>
+        </select>
+      </div>
+
+      <div class="route-preview-card">
+        <div>
+          <p class="label">Selected Route</p>
+          <strong id="selectedRouteName">Loading...</strong>
+          <span id="selectedRouteDestination">--</span>
+        </div>
+        <div class="route-preview-progress">
+          <span id="selectedRouteSteps">-- steps</span>
+        </div>
       </div>
 
       <div class="button-row stacked-mobile">
@@ -34,39 +49,69 @@
       </div>
     </section>
 
-    <section id="livePanel" class="live-panel hidden">
+    <section id="livePanel" class="live-panel hidden" aria-label="Live AR Guidance">
       <div class="camera-wrap">
         <video id="cameraVideo" autoplay playsinline muted></video>
+
         <div class="ar-overlay">
           <div class="hud-vignette"></div>
+          <div class="hud-scanlines"></div>
 
-          <div class="hud-topbar">
+          <div class="ar-route-ribbon">
             <button id="exitArBtn" class="exit-ar-btn">Close</button>
-            <div class="hud-chip"><span>GPS</span><strong id="hudGps">Waiting</strong></div>
-            <div class="hud-chip"><span>STEP</span><strong id="hudStep">--</strong></div>
+
+            <div class="ribbon-main">
+              <div>
+                <span class="ribbon-kicker" id="activeRouteName">Route</span>
+                <strong id="ribbonInstruction">Preparing guidance...</strong>
+              </div>
+              <div class="ribbon-step">
+                <span id="hudStep">--</span>
+              </div>
+            </div>
+
+            <div class="ribbon-progress">
+              <div id="routeProgressFill" class="ribbon-progress-fill"></div>
+            </div>
           </div>
 
-          <div class="mini-command-bar">
-            <div><span class="mini-label">Heading</span><strong id="headingValue">--</strong></div>
-            <div><span class="mini-label">Route</span><strong id="routeStatus">Not Started</strong></div>
+          <div class="hud-topbar">
+            <div class="hud-chip"><span>GPS</span><strong id="hudGps">Waiting</strong></div>
+            <div class="hud-chip"><span>Heading</span><strong id="headingValue">--</strong></div>
+            <div class="hud-chip"><span>Status</span><strong id="routeStatus">Not Started</strong></div>
           </div>
 
           <div class="waypoint-hud">
             <div id="progressRing" class="waypoint-ring"></div>
-            <div id="directionArrow" class="waypoint-arrow"><span id="bigArrow">↑</span></div>
+
+            <div id="directionArrow" class="waypoint-arrow">
+              <span id="bigArrow">↑</span>
+            </div>
+
             <div id="distanceRemaining" class="distance-chip">Distance: --</div>
             <div id="alignmentChip" class="alignment-chip">Aligning...</div>
           </div>
 
+          <div id="arrivalToast" class="arrival-toast hidden">
+            <strong>Waypoint reached</strong>
+            <span>Loading next instruction...</span>
+          </div>
+
           <div class="floating-step-panel">
-            <div class="step-panel-image-wrap"><img id="stepImage" class="step-image" alt="Route step"></div>
+            <div class="step-panel-image-wrap">
+              <img id="stepImage" class="step-image" alt="Route step">
+            </div>
+
             <div class="step-panel-content">
               <p id="turnBadge" class="turn-badge">GUIDANCE ACTIVE</p>
               <h2 id="guidanceText">Loading guidance...</h2>
               <p id="guidanceSubtext"></p>
 
-              <div class="route-progress"><div id="routeProgressFill" class="route-progress-fill"></div></div>
-              <div class="route-meta-row"><span id="routeProgressText">Progress --</span><span id="etaText">ETA --</span></div>
+              <div class="route-meta-row">
+                <span id="routeProgressText">Progress --</span>
+                <span id="etaText">ETA --</span>
+              </div>
+
               <div id="nextPreview" class="next-preview">Next: --</div>
               <div id="stepDots" class="step-dots"></div>
 
@@ -78,6 +123,7 @@
           </div>
         </div>
       </div>
+
       <button id="stopCameraBtn" class="danger-btn hidden">Stop Camera</button>
     </section>
 
@@ -88,9 +134,11 @@
     </section>
 
     <footer class="footer-card">
-            <img id="bwrdoLogo" class="bwrdo-logo" alt="BWRDO">
+      <img id="bwrdoLogo" class="bwrdo-logo" alt="BWRDO">
     </footer>
+
   </main>
-  <script src="./script.js?v=45"></script>
+
+  <script src="./script.js?v=500"></script>
 </body>
 </html>

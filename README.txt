@@ -1,14 +1,17 @@
-Ford Energy Visitor Guidance v4.5 GitHub Drop-In - Footer Tightened
+Ford Energy Visitor Guidance v5.0 GitHub Drop-In
 
-Replace these files in your GitHub repository:
+Replace these GitHub files:
 - index.html
 - style.css
 - script.js
 
-Change included:
-- Footer panel made smaller/tighter.
-- Redundant text above the BWRDO logo hidden.
-- BWRDO logo size unchanged.
+Do not change Google Apps Script if your current data/logging API is working.
 
-Test:
-https://kyblueoval.github.io/Ford-Energy-Visitor-Guidance-System/?v=451
+Important:
+- Footer no longer includes any separate "Developed By" text.
+- Footer panel stays compact.
+- BWRDO logo size is unchanged.
+- AR mode is a true full-screen overlay with route ribbon, progress bar, next-step preview, alignment chip, arrival toast, smoother bearing arrow, and existing Route_Logs audit logging preserved.
+
+Test URL:
+https://kyblueoval.github.io/Ford-Energy-Visitor-Guidance-System/?v=500
